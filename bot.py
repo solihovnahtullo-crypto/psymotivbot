@@ -3,7 +3,7 @@ from google import genai
 from telegram import Update,ReplyKeyboardMarkup,ReplyKeyboardRemove
 from telegram.ext import Application,CommandHandler,MessageHandler,filters,ContextTypes,ConversationHandler
 logging.basicConfig(format="%(asctime)s-%(message)s",level=logging.INFO)
-logger=logging.getLogger(__name__)
+logger=logging.getLogger(name)
 TELEGRAM_TOKEN=os.environ.get("TELEGRAM_TOKEN")
 GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY")
 client=genai.Client(api_key=GEMINI_API_KEY)
@@ -36,6 +36,7 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
  await context.bot.send_chat_action(chat_id=update.effective_chat.id,action="typing")
  try:
   r=client.models.generate_content(model="gemini-2.0-flash",contents=data["msgs"],config=genai.types.GenerateContentConfig(system_instruction=PROMPTS[data["lang"]]))
+  rep=r.text
   data["msgs"].append({"role":"model","parts":[{"text":rep}]})
   await update.message.reply_text(rep)
  except Exception as e:

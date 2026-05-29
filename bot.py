@@ -2,6 +2,8 @@ import os,logging
 from groq import Groq
 from telegram import Update
 from telegram.ext import Application,CommandHandler,MessageHandler,filters,ContextTypes
+import nest_asyncio,asyncio
+nest_asyncio.apply()
 logging.basicConfig(format="%(asctime)s-%(message)s",level=logging.INFO)
 logger=logging.getLogger(__name__)
 TELEGRAM_TOKEN=os.environ.get("TELEGRAM_TOKEN")
@@ -32,10 +34,10 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
  except Exception as e:
   logger.error(e)
   await update.message.reply_text("Xato. /start yozing.")
-def main():
+async def main():
  app=Application.builder().token(TELEGRAM_TOKEN).build()
  app.add_handler(CommandHandler("start",start))
  app.add_handler(MessageHandler(filters.TEXT&~filters.COMMAND,handle))
  logger.info("Bot started!")
- app.run_polling(drop_pending_updates=True)
-main()
+ await app.run_polling(drop_pending_updates=True)
+asyncio.get_event_loop().run_until_complete(main())

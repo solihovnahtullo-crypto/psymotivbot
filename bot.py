@@ -47,4 +47,4 @@ conv=ConversationHandler(entry_points=[CommandHandler("start",start)],states={LA
 app=Application.builder().token(TELEGRAM_TOKEN).build()
 app.add_handler(conv)
 logger.info("Bot started!")
-app.run_polling(drop_pending_updates=True)
+app.run_polling(drop_pending_updates=True) 

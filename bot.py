@@ -1,12 +1,12 @@
 import os,logging
-from groq import Groq
+from google import genai
 from telegram import Update,ReplyKeyboardMarkup,ReplyKeyboardRemove
 from telegram.ext import Application,CommandHandler,MessageHandler,filters,ContextTypes,ConversationHandler
 logging.basicConfig(format="%(asctime)s-%(message)s",level=logging.INFO)
 logger=logging.getLogger(name)
 TELEGRAM_TOKEN=os.environ.get("TELEGRAM_TOKEN")
-GROQ_API_KEY=os.environ.get("GROQ_API_KEY")
-client=Groq(api_key=GROQ_API_KEY)
+GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY")
+client=genai.Client(api_key=GEMINI_API_KEY)
 PROMPTS={
 "tj":"Ту психологи Маркази Мотив ҳастӣ. Номат Мотив. ҲАМЕША ба забони тоҷикӣ гап зан. Аввал эҳсос пурс. Якто савол бипурс. Кӯтоҳ ҷавоб деҳ.",
 "ru":"Ты психолог Центра Мотив. Тебя зовут Мотив. ВСЕГДА говори только на русском языке. Сначала спроси про чувства. Задавай один вопрос. Отвечай коротко.",
@@ -25,19 +25,19 @@ async def set_lang(update:Update,context:ContextTypes.DEFAULT_TYPE):
  if "Тоҷикӣ" in txt:lang="tj";msg="Салом! Ман Мотив ҳастам.\n\nИмрӯз чӣ ба дилат дорӣ?"
  elif "Русский" in txt:lang="ru";msg="Привет! Я Мотив.\n\nКак ты себя чувствуешь сегодня?"
  else:lang="uz";msg="Salom! Men Motivman.\n\nBugun qanday his qilyapsiz?"
- sessions[u]={"lang":lang,"msgs":[{"role":"assistant","content":msg}]}
+ sessions[u]={"lang":lang,"msgs":[{"role":"model","parts":[{"text":msg}]}]}
  await update.message.reply_text(msg,reply_markup=ReplyKeyboardRemove())
  return CHAT
 async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
  u=update.effective_user.id
  data=hist(u)
- data["msgs"].append({"role":"user","content":update.message.text})
+ data["msgs"].append({"role":"user","parts":[{"text":update.message.text}]})
  if len(data["msgs"])>20:data["msgs"]=data["msgs"][-20:]
  await context.bot.send_chat_action(chat_id=update.effective_chat.id,action="typing")
  try:
-  r=client.chat.completions.create(model="llama-3.3-70b-versatile",messages=[{"role":"system","content":PROMPTS[data["lang"]]}]+data["msgs"],max_tokens=500)
-  rep=r.choices[0].message.content
-  data["msgs"].append({"role":"assistant","content":rep})
+  r=client.models.generate_content(model="gemini-2.0-flash",config={"system_instruction":PROMPTS[data["lang"]]},contents=data["msgs"])
+  rep=r.text
+  data["msgs"].append({"role":"model","parts":[{"text":rep}]})
   await update.message.reply_text(rep)
  except Exception as e:
   logger.error(e)

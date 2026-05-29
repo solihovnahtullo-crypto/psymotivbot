@@ -3,7 +3,7 @@ from groq import Groq
 from telegram import Update,ReplyKeyboardMarkup,ReplyKeyboardRemove
 from telegram.ext import Application,CommandHandler,MessageHandler,filters,ContextTypes,ConversationHandler
 logging.basicConfig(format="%(asctime)s-%(message)s",level=logging.INFO)
-logger=logging.getLogger(__name__)
+logger=logging.getLogger(name)
 TELEGRAM_TOKEN=os.environ.get("TELEGRAM_TOKEN")
 GROQ_API_KEY=os.environ.get("GROQ_API_KEY")
 client=Groq(api_key=GROQ_API_KEY)

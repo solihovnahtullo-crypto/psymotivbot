@@ -35,8 +35,7 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
  if len(data["msgs"])>20:data["msgs"]=data["msgs"][-20:]
  await context.bot.send_chat_action(chat_id=update.effective_chat.id,action="typing")
  try:
-  r=client.models.generate_content(model="gemini-2.0-flash",config={"system_instruction":PROMPTS[data["lang"]]},contents=data["msgs"])
-  rep=r.text
+  r=client.models.generate_content(model="gemini-2.0-flash",contents=data["msgs"],config=genai.types.GenerateContentConfig(system_instruction=PROMPTS[data["lang"]]))
   data["msgs"].append({"role":"model","parts":[{"text":rep}]})
   await update.message.reply_text(rep)
  except Exception as e:

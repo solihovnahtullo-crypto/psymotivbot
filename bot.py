@@ -3,7 +3,7 @@ from google import genai
 from telegram import Update,ReplyKeyboardMarkup,ReplyKeyboardRemove
 from telegram.ext import Application,CommandHandler,MessageHandler,filters,ContextTypes,ConversationHandler
 logging.basicConfig(format="%(asctime)s-%(message)s",level=logging.INFO)
-logger=logging.getLogger(name)
+logger=logging.getLogger(__name__)
 TELEGRAM_TOKEN=os.environ.get("TELEGRAM_TOKEN")
 GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY")
 client=genai.Client(api_key=GEMINI_API_KEY)

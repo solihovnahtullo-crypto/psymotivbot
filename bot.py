@@ -1,4 +1,4 @@
-import os,logging,asyncio
+import os,logging
 from groq import Groq
 from telegram import Update
 from telegram.ext import Application,CommandHandler,MessageHandler,filters,ContextTypes
@@ -7,7 +7,7 @@ logger=logging.getLogger(__name__)
 TELEGRAM_TOKEN=os.environ.get("TELEGRAM_TOKEN")
 GROQ_API_KEY=os.environ.get("GROQ_API_KEY")
 client=Groq(api_key=GROQ_API_KEY)
-PROMPT="Tu psixologi Markazi Motiv hasti. Noming Motiv. Hamesha tojiki gapir. Avval his so'ra. Bitta savol ber. Qisqa javob ber."
+PROMPT="Tu psixologi Markazi Motiv hasti. Noming Motiv. Hamesha tojiki gapir. Avval his sora. Bitta savol ber. Qisqa javob ber."
 sessions={}
 def hist(u):return sessions.setdefault(u,[])
 def add(u,r,t):
@@ -22,7 +22,7 @@ def ask(u,t):
 async def start(update:Update,context:ContextTypes.DEFAULT_TYPE):
  u=update.effective_user.id
  sessions[u]=[]
- msg="Salom! Man Motiv hastam.\n\nBugun nima diling bor?"
+ msg="Salom! Man Motiv hastam. Bugun nima diling bor?"
  add(u,"assistant",msg)
  await update.message.reply_text(msg)
 async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
@@ -32,10 +32,10 @@ async def handle(update:Update,context:ContextTypes.DEFAULT_TYPE):
  except Exception as e:
   logger.error(e)
   await update.message.reply_text("Xato. /start yozing.")
-async def main():
+def main():
  app=Application.builder().token(TELEGRAM_TOKEN).build()
  app.add_handler(CommandHandler("start",start))
  app.add_handler(MessageHandler(filters.TEXT&~filters.COMMAND,handle))
  logger.info("Bot started!")
- await app.run_polling(allowed_updates=Update.ALL_TYPES)
-if __name__=="__main__":asyncio.run(main())
+ app.run_polling(drop_pending_updates=True)
+main()
